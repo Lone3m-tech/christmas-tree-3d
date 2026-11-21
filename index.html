@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="description" content="Zero-build interactive 3D particle Christmas tree & tactile Polaroid postcard gallery with Three.js, Web Audio music box, and optional hand gestures." />
+  <meta property="og:title" content="SimpleMkt · 3D 粒子圣诞树与拍立得明信片相册" />
+  <meta property="og:description" content="零首屏外链依赖的 3D 交互粒子圣诞树：4 款节日主题、拍立得明信片 180° 翻转、Web Audio 实时编曲与可选手势交互。" />
+  <title>SimpleMkt · 3D 粒子圣诞树与拍立得明信片相册</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2307141d'/%3E%3Cpolygon points='32,8 14,48 50,48' fill='%2316a34a'/%3E%3Crect x='28' y='48' width='8' height='8' fill='%2392400e'/%3E%3Ccircle cx='32' cy='10' r='5' fill='%23fde047'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="./styles/main.css" />
+  <script src="./vendor/three.min.js"></script>
+</head>
+<body data-theme="classic">
+  <div class="bg-photo-layer" id="bg-warm"></div>
+  <div class="bg-photo-layer" id="bg-aurora"></div>
+  <div class="bg-radial-scrim"></div>
+  <div id="scene-container"></div>
+  <canvas id="stardust-canvas"></canvas>
+  <div class="festive-vignette"></div>
+
+  <!-- Festive Entry Screen -->
+  <div class="entry-screen" id="entry-screen">
+    <a
+      class="entry-brand-crest"
+      id="entry-brand-crest"
+      href="https://simplemkt.cn/zh/lab/"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="SimpleMkt Lab"
+    >
+      <img
+        class="brand-wordmark"
+        src="./assets/brand/simplemkt-wordmark-reverse.png"
+        width="2048"
+        height="567"
+        alt="SimpleMkt"
+        decoding="async"
+      />
+    </a>
+    <div class="entry-card">
+      <div class="entry-kicker" id="entry-kicker">✦ WINTER WONDERLAND ✦</div>
+      <h2 class="entry-title">Merry Christmas</h2>
+      <p class="entry-desc" id="entry-desc">
+        雪夜松枝、温暖木屋与 12 张冬日拍立得明信片已就绪<br />
+        轻点下方，点亮四款 3D 魔法圣诞树（支持随时换上你的本地照片）
+      </p>
+      <button class="entry-btn" id="btn-enter-magic" type="button">🎄 开启圣诞魔法</button>
+    </div>
+  </div>
+
+  <!-- Header Title + Multi-Theme Switcher + Brand Wordmark -->
+  <div class="title-wrap">
+    <h1 class="title-text" id="title-text">Merry Christmas</h1>
+    <div class="theme-bar" id="theme-bar" role="tablist" aria-label="圣诞树主题切换">
+      <button class="theme-pill active" data-theme="classic" type="button">🎄 经典翡翠</button>
+      <button class="theme-pill" data-theme="aurora" type="button">❄️ 冰雪极光</button>
+      <button class="theme-pill" data-theme="candy" type="button">🍬 糖果乐园</button>
+      <button class="theme-pill" data-theme="cyber" type="button">🌌 赛博霓虹</button>
+    </div>
+    <a
+      class="brand-stage-crest"
+      id="brand-stage-crest"
+      href="https://simplemkt.cn/zh/lab/"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="SimpleMkt Lab"
+    >
+      <img
+        class="brand-wordmark"
+        src="./assets/brand/simplemkt-wordmark-reverse.png"
+        width="2048"
+        height="567"
+        alt="SimpleMkt"
+        decoding="async"
+      />
+    </a>
+  </div>
+
+  <!-- Top-left Status HUD -->
+  <div class="status-hud" id="status-hud">
+    <div class="status-row">
+      <span class="status-dot" id="status-dot"></span>
+      <span id="status-label">状态: 圣诞魔法已就绪</span>
+    </div>
+    <div class="status-sub" id="status-sub">悬停卡片微倾 · 点击展开拍立得</div>
+  </div>
+
+  <!-- Compact Festive Music Player Pill -->
+  <div class="music-pill" id="music-pill">
+    <button class="music-mini-btn" id="btn-track-next" type="button" title="切换内置圣诞曲目">⏭</button>
+    <span class="music-track-name" id="music-track-name">🔔 铃儿响叮当 Pop</span>
+    <button class="music-mini-btn" id="btn-upload-audio" type="button" title="导入本地 MP3/WAV 歌曲（仅本地播放）">🎧 选歌</button>
+  </div>
+  <input id="audio-input" type="file" accept="audio/*" />
+
+  <!-- Top-right Camera / Snowflake Widget -->
+  <div class="cam-widget">
+    <div class="cam-box" id="cam-box" title="开启或关闭摄像头手势识别（仅浏览器本地运行）">
+      <svg class="snowflake-icon" id="snowflake-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="2" x2="12" y2="22" />
+        <line x1="2" y1="12" x2="22" y2="12" />
+        <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
+        <line x1="19.07" y1="4.93" x2="4.93" y2="19.07" />
+        <polyline points="9 4 12 7 15 4" />
+        <polyline points="9 20 12 17 15 20" />
+        <polyline points="4 9 7 12 4 15" />
+        <polyline points="20 9 17 12 20 15" />
+      </svg>
+      <video id="cam-video" playsinline muted></video>
+      <canvas id="cam-overlay"></canvas>
+    </div>
+    <button class="cam-toggle-btn" id="cam-toggle-btn" type="button">OPEN</button>
+  </div>
+
+  <!-- Gallery Context Bar -->
+  <div class="gallery-pill" id="gallery-pill">
+    <span id="gallery-counter">1 / 12 · Alpine Cabin</span>
+    <button class="gallery-flip-btn" id="btn-flip-card" type="button">✉️ 翻转明信片背面</button>
+    <button class="gallery-flip-btn" id="btn-quick-replace" type="button" title="快速替换当前居中这张照片">📷 换这张</button>
+  </div>
+
+  <!-- Bottom Interactive Dock -->
+  <div class="controls-dock">
+    <button class="dock-btn primary" id="btn-mode" type="button">✨ 五指炸裂</button>
+    <button class="dock-btn icon-only" id="btn-prev" type="button" title="上一张照片">◀</button>
+    <button class="dock-btn icon-only" id="btn-next" type="button" title="下一张照片">▶</button>
+    <span class="dock-sep"></span>
+    <button class="dock-btn" id="btn-firework" type="button">🎇 放烟花</button>
+    <button class="dock-btn" id="btn-upload" type="button">📷 换照片</button>
+    <button class="dock-btn" id="btn-sfx" type="button">🔔 音效开</button>
+    <button class="dock-btn" id="btn-music" type="button">🎵 音乐</button>
+    <button class="dock-btn" id="btn-reset" type="button">🎄 复位</button>
+    <button class="dock-btn icon-only" id="btn-guide" type="button" title="手势与交互指南">?</button>
+  </div>
+  <input id="photo-input" type="file" accept="image/*" multiple />
+  <input id="single-photo-input" type="file" accept="image/*" />
+
+  <!-- Global Drag & Drop Overlay -->
+  <div class="drop-overlay" id="drop-overlay" aria-hidden="true">
+    <div class="drop-overlay-card">
+      <div class="drop-overlay-icon">📷</div>
+      <div class="drop-overlay-title">松开即可装入拍立得相册</div>
+      <div class="drop-overlay-sub">支持单张或批量拖入 · 照片仅保存在当前浏览器，不上传服务器</div>
+    </div>
+  </div>
+
+  <!-- Visual Photo Album Manager Drawer -->
+  <div class="modal-backdrop album-backdrop" id="album-drawer" role="dialog" aria-modal="true" aria-labelledby="album-modal-title">
+    <div class="album-card">
+      <div class="album-header">
+        <div>
+          <h2 class="album-title" id="album-modal-title">📷 我的拍立得相册</h2>
+          <p class="album-status" id="album-status">支持批量导入、单张换图、改寄语，或直接把照片拖进页面</p>
+        </div>
+        <button class="modal-close" id="album-close" type="button" aria-label="关闭相册面板">&times;</button>
+      </div>
+      <div class="album-toolbar">
+        <div class="album-toolbar-actions">
+          <button class="dock-btn primary" id="btn-album-batch" type="button">➕ 批量导入照片</button>
+          <button class="dock-btn" id="btn-album-reset" type="button">↺ 恢复默认示例照</button>
+        </div>
+        <span class="album-tip">小技巧：拖入图片到网页任意处或 Cmd/Ctrl+V 粘贴也能秒换</span>
+      </div>
+      <div class="album-grid" id="album-grid"></div>
+    </div>
+  </div>
+
+  <!-- Bottom Marquee -->
+  <div class="marquee-wrap">
+    <div class="marquee-track" id="marquee-track"></div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <!-- Gesture Guide Modal -->
+  <div class="modal-backdrop" id="guide-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <span class="modal-title">🎄 3D 圣诞树 · 交互与隐私说明</span>
+        <button class="modal-close" id="guide-close" type="button">&times;</button>
+      </div>
+      <ul class="guide-list">
+        <li class="guide-item">
+          <span class="guide-emoji">🖼️</span>
+          <div class="guide-desc">
+            <strong>棉质拍立得 &amp; 圣诞明信片翻转</strong>
+            <p>内置 12 张冬日圣诞胶片风格示例照；炸裂展开后点击居中卡片（或点「翻转明信片背面」）可 3D 翻看节日寄语。</p>
+          </div>
+        </li>
+        <li class="guide-item">
+          <span class="guide-emoji">✨</span>
+          <div class="guide-desc">
+            <strong>磁吸微倾 &amp; 魔法星尘拖尾</strong>
+            <p>移动鼠标自带星尘光尾；悬停任意拍立得会触发 3D 磁吸微倾与流光高光；支持鼠标拖拽、滚轮缩放与方向键翻页。</p>
+          </div>
+        </li>
+        <li class="guide-item">
+          <span class="guide-emoji">✋</span>
+          <div class="guide-desc">
+            <strong>摄像头手势识别（右上角 OPEN）</strong>
+            <p>五指张开炸裂展开照片墙，左右挥手翻页，握拳还原圣诞树，单指拨动加速旋转。摄像头画面仅在本地推理，不上传任何服务器。</p>
+          </div>
+        </li>
+        <li class="guide-item">
+          <span class="guide-emoji">📷</span>
+          <div class="guide-desc">
+            <strong>本地换图与选歌（纯前端运行）</strong>
+            <p>点击「换照片」或左上角「选歌」可即时加载本机图片与音频，全部文件仅在当前浏览器内存中读取，不会上传。</p>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

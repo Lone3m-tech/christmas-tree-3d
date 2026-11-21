@@ -1,0 +1,28 @@
+{
+  "name": "christmas-tree-3d",
+  "version": "1.0.0",
+  "description": "Zero-build interactive 3D particle Christmas tree & tactile Polaroid postcard gallery with Three.js, Web Audio polyphonic music box, and optional MediaPipe hand gestures.",
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs"
+  },
+  "keywords": [
+    "threejs",
+    "webgl",
+    "christmas-tree",
+    "polaroid-gallery",
+    "web-audio-api",
+    "mediapipe-hands",
+    "interactive-3d",
+    "zero-build"
+  ],
+  "author": "SimpleMkt",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Lone3m-tech/christmas-tree-3d.git"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
