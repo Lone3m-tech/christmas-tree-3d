@@ -6,8 +6,8 @@ export const HOLIDAY_YEAR = new Date().getFullYear();
  */
 export const BRAND_CONFIG = {
   name: 'SimpleMkt',
-  href: 'https://simplemkt.cn/zh/lab/',
-  ariaLabel: 'SimpleMkt Lab',
+  href: 'https://simplemkt.cn/zh/lab/christmas-tree-3d/',
+  ariaLabel: 'SimpleMkt Lab · 在线体验',
   wordmarkSrc: './assets/brand/simplemkt-wordmark-reverse.png',
 };
 

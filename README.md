@@ -2,6 +2,11 @@
 
 > 零构建工具、零外部首屏依赖的 3D 交互式粒子圣诞树与拍立得明信片相册（`Three.js` + `Canvas 2D` + `Web Audio API` + 可选 `MediaPipe Hands`）。
 
+**在线体验（Live Demo）**
+
+- 中文站（国内访问）：[https://simplemkt.cn/zh/lab/christmas-tree-3d/](https://simplemkt.cn/zh/lab/christmas-tree-3d/)
+- International（Global）：[https://simplemkt.cc/en/lab/christmas-tree-3d/](https://simplemkt.cc/en/lab/christmas-tree-3d/)
+
 开箱即用，支持直接部署至 **GitHub Pages** 或任意静态站点目录。
 
 ---
